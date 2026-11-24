@@ -41,12 +41,14 @@ header{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:flex-end;justify-co
 .card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 16px 16px;display:flex;flex-direction:column;gap:12px;min-width:0}
 .card-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap}
 .hint{color:var(--muted);font-size:.86rem;margin:0}
-label.f{display:flex;flex-direction:column;gap:4px;font-size:.82rem;color:var(--muted);font-weight:500}
+label.f,div.f{display:flex;flex-direction:column;gap:4px;font-size:.82rem;color:var(--muted);font-weight:500}
 .row{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:flex-end}
 input[type=number],input[type=text],select{font:inherit;font-size:.95rem;color:var(--ink);background:var(--sunk);border:1px solid var(--line);border-radius:6px;padding:6px 8px;min-width:0;width:100%}
 input[type=number]{font-family:var(--mono);font-size:.88rem;text-align:right;font-variant-numeric:tabular-nums}
 input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
-.w-s{width:92px}.w-m{width:120px}
+.grp{display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--line);padding-top:12px}
+.sub{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+input.w-s,select.w-s{width:92px}input.w-m,select.w-m{width:120px}
 button{font:inherit;font-weight:600;font-size:.88rem;border-radius:6px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:6px 12px;cursor:pointer}
 button.primary{background:var(--accent);border-color:var(--accent);color:var(--surface)}
 button.ghost{background:transparent;border-color:transparent;color:var(--muted);padding:4px 6px}
@@ -153,14 +155,25 @@ td.miss{color:var(--warn);font-family:var(--body)}
               <button type="button" id="leadNo" aria-pressed="false">No</button>
             </div>
           </div>
-          <label class="f lead-only" for="ownK">Your strength<input id="ownK" type="number" min="0" step="0.01" class="w-s"></label>
-          <label class="f lead-only" for="leadHits">Your rally hits<input id="leadHits" type="number" min="1" max="10" step="1" class="w-s"></label>
-          <label class="f lead-only" for="lowTier">Low tiers go to you<select id="lowTier" class="w-m"><option value="0">None</option><option value="4">T4 and below</option><option value="5">T5 and below</option><option value="6">T6 and below</option><option value="7">T7 and below</option></select></label>
-          <label class="f lead-only" for="leadCap">Your march max<input id="leadCap" type="number" min="0" step="1000" class="w-m" placeholder="no limit"></label>
-          <label class="f" for="buffA">Attack buff %<input id="buffA" type="number" min="0" step="5" class="w-s" placeholder="0"></label>
-          <label class="f" for="buffL">Lethality buff %<input id="buffL" type="number" min="0" step="5" class="w-s" placeholder="0"></label>
         </div>
-        <p class="hint">Strength is relative: you are 1.00 unless you set a different scale. A leader at 1.30 gives 30% more damage per troop than your own rally. Your rally hits: 5 if you open within the first ~3.5 minutes, 4 if you open later. Your own rally doesn't use a march queue. Buffs are the attack and lethality buffs you'll have running; leaders' own buffs are already part of their measured strength.</p>
+        <div class="grp lead-only">
+          <h3 class="sub">Your rally</h3>
+          <div class="row">
+            <label class="f" for="ownK">Strength<input id="ownK" type="number" min="0" step="0.01" class="w-s"></label>
+            <label class="f" for="leadHits">Hits<input id="leadHits" type="number" min="1" max="10" step="1" class="w-s"></label>
+            <label class="f" for="leadCap">March max<input id="leadCap" type="number" min="0" step="1000" class="w-m" placeholder="no limit"></label>
+            <label class="f" for="lowTier">Low tiers go here<select id="lowTier" class="w-m"><option value="0">None</option><option value="4">T4 and below</option><option value="5">T5 and below</option><option value="6">T6 and below</option><option value="7">T7 and below</option></select></label>
+          </div>
+          <p class="hint">Strength is relative: your rally is 1.00 unless you set a different scale, and a leader at 1.30 does 30% more damage per troop. Hits: 5 if you open within the first ~3.5 minutes, 4 if later. Your rally doesn't use a march queue.</p>
+        </div>
+        <div class="grp">
+          <h3 class="sub">Your buffs</h3>
+          <div class="row">
+            <label class="f" for="buffA">Attack<select id="buffA" class="w-s"><option value="0">None</option><option value="10">+10%</option><option value="20">+20%</option></select></label>
+            <label class="f" for="buffL">Lethality<select id="buffL" class="w-s"><option value="0">None</option><option value="10">+10%</option><option value="20">+20%</option></select></label>
+          </div>
+          <p class="hint">Apply to your rally and every march you send. Leaders' own buffs are already part of their measured strength.</p>
+        </div>
       </section>
 
       <section class="card" aria-labelledby="h-leaders">
@@ -172,7 +185,7 @@ td.miss{color:var(--warn);font-family:var(--body)}
       <section class="card" aria-labelledby="h-measure">
         <div class="card-head"><h2 id="h-measure">Measure leader strengths</h2></div>
         <p class="hint">After a bear, paste the presets you used (same format as Copy presets) and your hits from the damage list, one per line, like "Leader 1 5,866,987". Hits from your own rally go under your name. Each hit is compared with what that preset should do, so different preset sizes and mixes are accounted for.</p>
-        <div class="row"><label class="f" for="meName">Your name in the hit list<input id="meName" type="text" class="w-m" placeholder="your in-game name"></label></div>
+        <div class="row"><label class="f" for="meName">Your name in the hit list<input id="meName" type="text" style="width:200px" placeholder="your in-game name"></label></div>
         <label class="f" for="mPresets">Presets you used<textarea id="mPresets" rows="6" spellcheck="false" placeholder="Lead (95,000)&#10;  T9 Infantry: 38,000&#10;  ...&#10;Leader 1 (60,000)&#10;  ...&#10;Joiner ×4 (40,000)&#10;  ..."></textarea></label>
         <label class="f" for="mHits">Hits<textarea id="mHits" rows="8" spellcheck="false" placeholder="YourName 6,193,734&#10;Leader 1 5,866,987&#10;Leader 2 3,790,863"></textarea></label>
         <div class="tablewrap" id="mWrap" hidden><table id="mTable"></table></div>
@@ -191,10 +204,16 @@ td.miss{color:var(--warn);font-family:var(--body)}
           </div>
           <label class="f" for="rounds">Rallies per leader<input id="rounds" type="number" min="1" max="10" step="1" class="w-s"></label>
           <label class="f" id="rotHitsF" for="rotHits">Max hits per rotating march<input id="rotHits" type="number" min="1" max="20" step="0.5" class="w-s"></label>
-          <label class="f" for="joinMin">Joiner minimum<input id="joinMin" type="number" min="0" step="1000" class="w-m" placeholder="none"></label>
-          <label class="f" for="joinCap">Joiner cap<input id="joinCap" type="number" min="0" step="1000" class="w-m" placeholder="no cap"></label>
         </div>
         <p class="hint" id="launchHint"><b>Staggered:</b> rallies open a few seconds apart, so a free march can join whichever rally leaves next. Max hits per rotating march depends on how close to launch you can still get in: about 6.5 when you can only join 3–4 minutes out, about 10 in the last minute. <b>All at once:</b> every rally opens and launches together, so each march joins one leader every round.</p>
+        <div class="grp">
+          <h3 class="sub">Joiner march size</h3>
+          <div class="row">
+            <label class="f" for="joinMin">Minimum<input id="joinMin" type="number" min="0" step="1000" class="w-m" placeholder="none"></label>
+            <label class="f" for="joinCap">Cap<input id="joinCap" type="number" min="0" step="1000" class="w-m" placeholder="no cap"></label>
+          </div>
+          <p class="hint">Applies to every leader unless their Min or Cap says otherwise.</p>
+        </div>
         <details>
           <summary>Advanced: your troop stats</summary>
           <p class="hint" style="margin-top:8px">Used to compare troop types (which matters when a cap is hit) and when measuring leader strengths. Enter the totals from your stats screen.</p>
@@ -306,7 +325,7 @@ function renderToggles(){
 function renderInputs(){
   renderProfiles();renderTroops();renderLeaders();renderStats();
   $('marches').value=S.marches;$('ownK').value=S.ownK;$('leadCap').value=S.leadCap;$('leadHits').value=S.leadHits||S.rounds;$('lowTier').value=String(S.lowTier||0);
-  $('rounds').value=S.rounds;$('rotHits').value=S.rotHits;$('joinCap').value=S.joinCap;$('joinMin').value=S.joinMin||'';$('pitfall').value=S.pitfall;$('buffA').value=S.buffA||'';$('buffL').value=S.buffL||'';
+  $('rounds').value=S.rounds;$('rotHits').value=S.rotHits;$('joinCap').value=S.joinCap;$('joinMin').value=S.joinMin||'';$('pitfall').value=S.pitfall;S.buffA=snapBuff(S.buffA);S.buffL=snapBuff(S.buffL);$('buffA').value=String(S.buffA);$('buffL').value=String(S.buffL);
   $('meName').value=S.meName||'';$('mPresets').value=S.mPresets||'';$('mHits').value=S.mHits||'';
   renderToggles();
 }
@@ -315,7 +334,7 @@ function readInputs(){
   S.marches=Math.max(1,Math.min(8,Math.round(num($('marches').value,4))));
   S.ownK=Math.max(0,num($('ownK').value,1));S.leadCap=$('leadCap').value;S.leadQueue=false;S.leadHits=Math.max(1,Math.round(num($('leadHits').value,5)));S.lowTier=parseInt($('lowTier').value,10)||0;
   S.rounds=Math.max(1,Math.round(num($('rounds').value,5)));S.rotHits=Math.max(0.5,num($('rotHits').value,6.5));
-  S.joinCap=$('joinCap').value;S.joinMin=$('joinMin').value;S.pitfall=num($('pitfall').value,25);S.buffA=Math.max(0,num($('buffA').value,0));S.buffL=Math.max(0,num($('buffL').value,0));
+  S.joinCap=$('joinCap').value;S.joinMin=$('joinMin').value;S.pitfall=num($('pitfall').value,25);S.buffA=snapBuff($('buffA').value);S.buffL=snapBuff($('buffL').value);
   S.leaders.forEach((l,i)=>{l.name=$(`ln-${i}`).value;l.k=Math.max(0,num($(`lk-${i}`).value,1));l.count=Math.max(1,Math.round(l.count||1));l.on=$(`lo-${i}`).checked;$(`ln-${i}`).closest('.lrow').classList.toggle('off',!l.on);l.early=$(`le-${i}`).checked;l.min=$(`lm-${i}`).value;l.cap=$(`lp-${i}`).value});
   for(const k of ['sq','inf','cav','arc']){S.stats[k].a=num($(`sa-${k}`).value,0);S.stats[k].l=num($(`sl-${k}`).value,0)}
   S.meName=$('meName').value;S.mPresets=$('mPresets').value;S.mHits=$('mHits').value;
@@ -323,6 +342,7 @@ function readInputs(){
 
 /* ---------- model ---------- */
 function items(){const out=[];for(let tier=TIERS;tier>=1;tier--)for(const t of TYPES){const n=S.troops[t][tier-1];if(n>0)out.push({t,tier,n,b:BASE[t][tier-1]})}return out}
+function snapBuff(v){v=Number(v)||0;return v>=15?20:v>=5?10:0}
 function typeMult(){const m={},bA=S.buffA||0,bL=S.buffL||0;for(const t of TYPES){m[t]=(1+(S.stats[t].a+S.stats.sq.a+S.pitfall+bA)/100)*(1+(S.stats[t].l+S.stats.sq.l+bL)/100)*(t==='arc'?1.1:1)}return m}
 
 // per-march size n_g = clamp(w_g^2 * s, lo_g, cap_g), with s chosen so the troops add up; null if the minimums need more troops than exist
