@@ -506,6 +506,11 @@ function optimize(plan,its,M){
     const over=presets[g].reduce((s,x)=>s+x,0)-Math.floor(groups[g].cap);if(over<=0)continue;
     let im=0;presets[g].forEach((x,i)=>{if(!fixed[i]&&x>presets[g][im])im=i});presets[g][im]-=over;
     const to=leadIdx>=0&&leadIdx!==g&&groups[leadIdx].cap===Infinity?leadIdx:G-1;presets[to][im]+=over}
+  // anything the cap trim sent home goes back into marches that still have room: single marches first, then identical marches evenly
+  for(let i=0;i<I;i++){if(fixed[i])continue;
+    const room=g=>Math.max(0,Math.floor(groups[g].cap-presets[g].reduce((s,x)=>s+x,0)));
+    for(let g=0;g<G-1&&presets[G-1][i]>0;g++){if(groups[g].m!==1)continue;const a=Math.min(presets[G-1][i],room(g));presets[g][i]+=a;presets[G-1][i]-=a}
+    for(let g=0;g<G-1&&presets[G-1][i]>0;g++){const m=groups[g].m;if(m<2)continue;const a=Math.min(Math.floor(presets[G-1][i]/m),room(g));if(a>0){presets[g][i]+=a;presets[G-1][i]-=a*m}}}
   // top up any march that rounding left below its minimum, taking from home first, then your rally
   for(let g=0;g<G-1;g++){const lo=Math.ceil(groups[g].lo||0);if(!lo||g===leadIdx)continue;
     let need=lo-presets[g].reduce((s,x)=>s+x,0);
