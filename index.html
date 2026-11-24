@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Bear Trap March Planner</title>
+<meta name="description" content="Kingshot Bear Trap march planner: splits your troops across your rally and joiner marches for the most damage.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@600;700&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
+<style>
+/* Layout: inputs column + sticky results column on wide screens; one column on phones. */
+:root{
+  --bg:#EEF1F5; --surface:#FFFFFF; --sunk:#F5F7FA; --ink:#17202B; --muted:#5A6576; --line:#D7DDE6;
+  --accent:#2F5FD0; --accent-soft:#E3EBFB; --gold:#9A7414; --gold-soft:#F6EED7; --good:#2B7A4B; --warn:#A2561B;
+  --display:"Saira Condensed","Arial Narrow",Arial,sans-serif;
+  --body:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#10151C; --surface:#18202A; --sunk:#141B24; --ink:#E5EAF1; --muted:#9AA6B6; --line:#2A3441;
+  --accent:#86A6F3; --accent-soft:#1F2C45; --gold:#E2BC55; --gold-soft:#332A14; --good:#6CC48F; --warn:#E59A5C; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#10151C; --surface:#18202A; --sunk:#141B24; --ink:#E5EAF1; --muted:#9AA6B6; --line:#2A3441;
+  --accent:#86A6F3; --accent-soft:#1F2C45; --gold:#E2BC55; --gold-soft:#332A14; --good:#6CC48F; --warn:#E59A5C; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.45}
+.wrap{max-width:1240px;margin:0 auto;padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--display);font-weight:700;letter-spacing:.01em;text-wrap:balance;margin:0}
+h1{font-size:2rem;line-height:1.1}
+h2{font-size:1.15rem;text-transform:uppercase;letter-spacing:.06em}
+.lede{color:var(--muted);max-width:62ch;margin:.35rem 0 0}
+header{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:flex-end;justify-content:space-between;margin-bottom:18px}
+.profiles{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.layout{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:900px){.layout{grid-template-columns:minmax(0,1fr)}}
+.col{display:flex;flex-direction:column;gap:14px;min-width:0}
+.results{position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px)}
+@media (max-width:900px){.results{position:static}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 16px 16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.card-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.hint{color:var(--muted);font-size:.86rem;margin:0}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:.82rem;color:var(--muted);font-weight:500}
+.row{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:flex-end}
+input[type=number],input[type=text],select{font:inherit;font-size:.95rem;color:var(--ink);background:var(--sunk);border:1px solid var(--line);border-radius:6px;padding:6px 8px;min-width:0;width:100%}
+input[type=number]{font-family:var(--mono);font-size:.88rem;text-align:right;font-variant-numeric:tabular-nums}
+input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.w-s{width:92px}.w-m{width:120px}
+button{font:inherit;font-weight:600;font-size:.88rem;border-radius:6px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:6px 12px;cursor:pointer}
+button.primary{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+button.ghost{background:transparent;border-color:transparent;color:var(--muted);padding:4px 6px}
+button:hover{border-color:var(--accent)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:7px;overflow:hidden}
+.seg button{border:0;border-radius:0;background:var(--sunk);color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--surface)}
+/* troop grid */
+.troops{display:grid;grid-template-columns:52px repeat(3,minmax(0,1fr));gap:6px 8px;align-items:center}
+.troops .th{font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);text-align:right}
+.tier{display:inline-flex;align-items:center;justify-content:center;width:38px;height:22px;font-family:var(--display);font-weight:700;font-size:.82rem;color:var(--ink);background:var(--accent-soft);clip-path:polygon(18% 0,82% 0,100% 50%,82% 100%,18% 100%,0 50%)}
+.tier.hi{background:var(--gold-soft);color:var(--gold)}
+.trow-empty{opacity:.55}
+.sum-line{display:flex;justify-content:space-between;font-size:.85rem;color:var(--muted)}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+/* leaders */
+.leaders{display:flex;flex-direction:column;gap:8px}
+.leaders{container-type:inline-size}
+.lrow{display:grid;grid-template-columns:minmax(0,1fr) 70px 56px 26px;gap:4px 6px;align-items:center}
+.lopts{grid-column:1/-1;display:grid;grid-template-columns:70px minmax(0,1fr) minmax(0,1fr) 56px;gap:6px;align-items:center;padding-bottom:8px;border-bottom:1px dashed var(--line)}
+.lrow.head .lopts{padding-bottom:0;border-bottom:0}
+@container (min-width:600px){.lrow [data-del]{order:9}.lrow{grid-template-columns:minmax(110px,1fr) 64px 54px 60px 80px 80px 52px 26px}.lopts{display:contents}.lrow{padding-bottom:0;border-bottom:0}}
+.lrow.off input[type=text],.lrow.off input[type=number]{opacity:.45}
+.lrow.head{font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.lrow .cb{display:flex;justify-content:center}
+details{border-top:1px dashed var(--line);padding-top:10px}
+summary{cursor:pointer;color:var(--muted);font-size:.86rem;font-weight:600}
+.stats{display:grid;grid-template-columns:80px repeat(2,minmax(0,1fr));gap:6px 8px;align-items:center;margin-top:10px;max-width:360px}
+/* results */
+.verdict{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:baseline}
+.big{font-family:var(--display);font-size:2.1rem;font-weight:700;line-height:1}
+.big.pos{color:var(--good)}
+.marches{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.march{border:1px solid var(--line);border-radius:8px;padding:9px 10px;display:flex;flex-direction:column;gap:3px;background:var(--sunk)}
+.chip{align-self:flex-start;font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;padding:2px 7px;border-radius:999px}
+.chip.lead{background:var(--accent);color:var(--surface)}
+.chip.pin{background:var(--gold-soft);color:var(--gold)}
+.chip.rot{background:var(--accent-soft);color:var(--accent)}
+.march .name{font-weight:600}
+.march .troopsN{font-family:var(--mono);font-size:1.05rem}
+.march .math{font-size:.8rem;color:var(--muted)}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:8px}
+table{border-collapse:collapse;width:100%;font-size:.88rem}
+th,td{padding:6px 10px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--line)}
+th:first-child,td:first-child{text-align:left;position:sticky;left:0;background:var(--surface)}
+thead th{font-size:.74rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);background:var(--surface);vertical-align:bottom}
+tbody td{font-family:var(--mono);font-variant-numeric:tabular-nums}
+tbody td:first-child{font-family:var(--body)}
+tr.total td{font-weight:600;border-top:2px solid var(--line);border-bottom:0}
+tr.mix td{color:var(--muted);font-size:.78rem;border-bottom:0}
+.alts{display:flex;flex-direction:column;gap:4px;margin:0;padding:0;list-style:none;font-size:.88rem}
+.alts li{display:flex;justify-content:space-between;gap:12px;border-bottom:1px dotted var(--line);padding:3px 0}
+.alts li.best{font-weight:600}
+.warnbox{border-left:3px solid var(--warn);padding:6px 10px;background:var(--sunk);font-size:.86rem;color:var(--ink)}
+.notes{font-size:.82rem;color:var(--muted);margin:0;padding-left:18px;display:flex;flex-direction:column;gap:3px}
+.toast{font-size:.8rem;color:var(--good);min-height:1em}
+.altbtn{background:none;border:0;padding:0;font:inherit;color:var(--accent);text-align:left;cursor:pointer}
+.altbtn:hover{text-decoration:underline}
+.alts li.best .altbtn{color:var(--ink)}
+.alts .tag{font-size:.72rem;color:var(--good);font-weight:600;margin-left:6px}
+textarea{font-family:var(--mono);font-size:.8rem;line-height:1.4;color:var(--ink);background:var(--sunk);border:1px solid var(--line);border-radius:6px;padding:8px;width:100%;resize:vertical}
+td.miss{color:var(--warn);font-family:var(--body)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Bear Trap March Planner</h1>
+      <p class="lede">Enter your troops, your marches and how strong each leader's rally is. The planner picks which rallies to pin, how many marches to rotate, and how many troops of each tier go into each preset.</p>
+    </div>
+    <div class="profiles">
+      <label class="f" for="profileSel">Account
+        <select id="profileSel"></select>
+      </label>
+      <button id="saveAsBtn" type="button">Save as new</button>
+      <button id="delBtn" type="button" class="ghost">Delete</button>
+    </div>
+  </header>
+  <div id="saveAsRow" class="row" hidden style="margin-bottom:14px">
+    <label class="f" for="newName">New account name<input id="newName" type="text" placeholder="e.g. Farm account" style="width:220px"></label>
+    <button id="saveAsOk" type="button" class="primary">Save</button>
+    <button id="saveAsCancel" type="button" class="ghost">Cancel</button>
+  </div>
+
+  <div class="layout">
+    <div class="col">
+      <section class="card" aria-labelledby="h-troops">
+        <div class="card-head"><h2 id="h-troops">1 · Troops</h2><span class="hint">From Troops Preview, all troops</span></div>
+        <div class="troops" id="troopGrid"></div>
+        <div class="sum-line"><span>Total</span><span class="mono" id="troopTotal">0</span></div>
+      </section>
+
+      <section class="card" aria-labelledby="h-you">
+        <div class="card-head"><h2 id="h-you">2 · Your marches</h2></div>
+        <div class="row">
+          <label class="f" for="marches">March queues<input id="marches" type="number" min="1" max="8" step="1" class="w-s"></label>
+          <div class="f"><span>Leading a rally?</span>
+            <div class="seg" role="group" aria-label="Leading a rally">
+              <button type="button" id="leadYes" aria-pressed="true">Yes</button>
+              <button type="button" id="leadNo" aria-pressed="false">No</button>
+            </div>
+          </div>
+          <label class="f lead-only" for="ownK">Your strength<input id="ownK" type="number" min="0" step="0.01" class="w-s"></label>
+          <label class="f lead-only" for="leadHits">Your rally hits<input id="leadHits" type="number" min="1" max="10" step="1" class="w-s"></label>
+          <label class="f lead-only" for="lowTier">Low tiers go to you<select id="lowTier" class="w-m"><option value="0">None</option><option value="4">T4 and below</option><option value="5">T5 and below</option><option value="6">T6 and below</option><option value="7">T7 and below</option></select></label>
+          <label class="f lead-only" for="leadCap">Your march max<input id="leadCap" type="number" min="0" step="1000" class="w-m" placeholder="no limit"></label>
+          <label class="lead-only" for="leadQueue" style="display:flex;gap:6px;align-items:center;font-size:.85rem;padding-bottom:6px"><input id="leadQueue" type="checkbox"> Your rally uses a march queue</label>
+        </div>
+        <p class="hint">Strength is relative: you are 1.00 unless you set a different scale. A leader at 1.30 gives 30% more damage per troop than your own rally. Your rally hits: 5 if you open within the first ~3.5 minutes, 4 if you open later.</p>
+      </section>
+
+      <section class="card" aria-labelledby="h-leaders">
+        <div class="card-head"><h2 id="h-leaders">3 · Leaders you join</h2><button id="addLeader" type="button">Add leader</button></div>
+        <div class="leaders" id="leaders"></div>
+        <p class="hint">Fill in strengths with <b>Measure leader strengths</b> below after each bear. Untick <b>Joining</b> when a leader isn't playing this event. <b>Group ×</b> lets one row stand for several similar leaders ("Others ×4"). Tick <b>Full early</b> if their rally is full before your rotating marches can get in. <b>Min</b> and <b>Cap</b> override the joiner minimum and cap for that leader. Rotating marches skip any rally whose minimum is above their size.</p>
+      </section>
+
+      <section class="card" aria-labelledby="h-measure">
+        <div class="card-head"><h2 id="h-measure">Measure leader strengths</h2></div>
+        <p class="hint">After a bear, paste the presets you used (same format as Copy presets) and your hits from the damage list, one per line, like "Leader 1 5,866,987". Hits from your own rally go under your name. Each hit is compared with what that preset should do, so different preset sizes and mixes are accounted for.</p>
+        <div class="row"><label class="f" for="meName">Your name in the hit list<input id="meName" type="text" class="w-m" placeholder="your in-game name"></label></div>
+        <label class="f" for="mPresets">Presets you used<textarea id="mPresets" rows="6" spellcheck="false" placeholder="Lead (95,000)&#10;  T9 Infantry: 38,000&#10;  ...&#10;Leader 1 (60,000)&#10;  ...&#10;Joiner ×4 (40,000)&#10;  ..."></textarea></label>
+        <label class="f" for="mHits">Hits<textarea id="mHits" rows="8" spellcheck="false" placeholder="YourName 6,193,734&#10;Leader 1 5,866,987&#10;Leader 2 3,790,863"></textarea></label>
+        <div class="tablewrap" id="mWrap" hidden><table id="mTable"></table></div>
+        <p class="hint" id="mNote"></p>
+        <div class="row"><button id="mApply" type="button" class="primary" hidden>Use these strengths</button></div>
+      </section>
+
+      <section class="card" aria-labelledby="h-event">
+        <div class="card-head"><h2 id="h-event">4 · How rallies launch</h2></div>
+        <div class="row">
+          <div class="f"><span>Launch pattern</span>
+            <div class="seg" role="group" aria-label="Launch pattern">
+              <button type="button" id="modeRot" aria-pressed="true">Staggered</button>
+              <button type="button" id="modeSync" aria-pressed="false">All at once</button>
+            </div>
+          </div>
+          <label class="f" for="rounds">Rallies per leader<input id="rounds" type="number" min="1" max="10" step="1" class="w-s"></label>
+          <label class="f rot-only" for="rotHits">Max hits per rotating march<input id="rotHits" type="number" min="1" max="20" step="0.5" class="w-s"></label>
+          <label class="f" for="buffA">Attack buff %<input id="buffA" type="number" min="0" step="5" class="w-s" placeholder="0"></label>
+          <label class="f" for="buffL">Lethality buff %<input id="buffL" type="number" min="0" step="5" class="w-s" placeholder="0"></label>
+          <label class="f" for="joinMin">Joiner minimum<input id="joinMin" type="number" min="0" step="1000" class="w-m" placeholder="none"></label>
+          <label class="f" for="joinCap">Joiner cap<input id="joinCap" type="number" min="0" step="1000" class="w-m" placeholder="no cap"></label>
+        </div>
+        <p class="hint rot-only">Staggered: rallies open a few seconds apart, so a free march can join whichever rally leaves next. Max hits depends on how close to launch you can still get in: about 6.5 when you can only join 3–4 minutes out, about 10 if you can join in the last minute.</p>
+        <p class="hint sync-only" hidden>All at once: every rally opens and launches together, so each march joins one leader every round.</p>
+        <details>
+          <summary>Advanced: your troop stats</summary>
+          <p class="hint" style="margin-top:8px">Used to compare troop types (which matters when a cap is hit) and when measuring leader strengths. Enter the totals from your stats screen.</p>
+          <div class="stats" id="statsGrid"></div>
+          <div class="row" style="margin-top:8px"><label class="f" for="pitfall">Pitfall attack bonus %<input id="pitfall" type="number" min="0" max="25" step="5" class="w-s"></label></div>
+        </details>
+      </section>
+    </div>
+
+    <div class="col results">
+      <section class="card" aria-labelledby="h-plan">
+        <div class="card-head"><h2 id="h-plan">Best plan</h2><span class="hint" id="planLine"></span><button type="button" id="backBest" hidden>Back to best plan</button></div>
+        <div class="verdict"><span class="big" id="gain">–</span><span class="hint" id="gainNote">more damage than splitting troops equally across the same marches</span></div>
+        <div class="marches" id="marchCards"></div>
+        <div id="warnings"></div>
+      </section>
+
+      <section class="card" aria-labelledby="h-presets">
+        <div class="card-head"><h2 id="h-presets">Presets</h2>
+          <div class="row" style="gap:8px;align-items:center"><span class="toast" id="toast" role="status"></span><button id="copyBtn" type="button">Copy presets</button></div>
+        </div>
+        <p class="hint">Save each by quantity. Rows follow the game's order: highest tier first, then Infantry, Cavalry, Archers.</p>
+        <div class="tablewrap"><table id="presetTable"></table></div>
+      </section>
+
+      <section class="card" aria-labelledby="h-alts">
+        <div class="card-head"><h2 id="h-alts">Other plans</h2><span class="hint">Tap one to use its presets · event damage vs the best plan</span></div>
+        <ul class="alts" id="alts"></ul>
+        <ul class="notes">
+          <li>Damage per march = leader strength × hits × √troops, separately for each troop type.</li>
+          <li>Each march gets troops in proportion to (hits × strength)². Pinned marches join their leader's rally the moment it opens.</li>
+          <li>When a march is at its cap, its slots go mostly to archers and cavalry, which hit hardest per troop. The other marches take the extra infantry.</li>
+          <li>Assumes you can't put two of your marches in the same rally.</li>
+        </ul>
+      </section>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+const TYPES=['inf','cav','arc'];
+const TNAME={inf:'Infantry',cav:'Cavalry',arc:'Archers'};
+const ROMAN=['I','II','III','IV','V','VI','VII','VIII','IX','X','XI'];
+const BASE={inf:[63,94,132,172,206,243,287,339,400,472,566],cav:[189,283,397,516,619,730,862,1017,1200,1416,1699],arc:[252,378,529,688,825,974,1149,1356,1600,1888,2266]};
+const TIERS=11;
+function zeros(){return Array(TIERS).fill(0)}
+function mk(tiers){const t={inf:zeros(),cav:zeros(),arc:zeros()};for(const [tier,i,c,a] of tiers){t.inf[tier-1]=i;t.cav[tier-1]=c;t.arc[tier-1]=a}return t}
+// example starting data: replace with your own troops, leaders and stats, then use "Save as new"
+const EXAMPLE={troops:mk([[9,40000,35000,50000],[8,10000,10000,15000]]),marches:5,leading:true,ownK:1,leadCap:'',leadQueue:false,leadHits:5,lowTier:0,joinMin:'',calScale:0,calHit:0,buffA:0,buffL:0,
+    leaders:[{name:'Leader 1',k:1.2,count:1,on:true,early:true,cap:''},{name:'Leader 2',k:0.9,count:1,on:true,early:false,cap:''},{name:'Leader 3',k:0.6,count:1,on:true,early:false,cap:''},{name:'Leader 4',k:0.45,count:1,on:true,early:false,cap:''},{name:'Leader 5',k:0.4,count:1,on:true,early:false,cap:''},{name:'Leader 6',k:0.35,count:1,on:true,early:false,cap:''},{name:'Leader 7',k:0.3,count:1,on:true,early:false,cap:''}],
+    mode:'rot',rounds:5,rotHits:7,joinCap:'',stats:{sq:{a:0,l:0},inf:{a:200,l:200},cav:{a:200,l:200},arc:{a:200,l:200}},pitfall:25,meName:'',mPresets:'',mHits:''};
+const DEFAULT_PROFILES={'Example account':EXAMPLE};
+const KEY='kingshot-bear-planner-v1';
+let store={profiles:JSON.parse(JSON.stringify(DEFAULT_PROFILES)),current:'Example account'};
+try{const raw=localStorage.getItem(KEY);if(raw){const s=JSON.parse(raw);if(s&&s.profiles&&Object.keys(s.profiles).length){store=s}}}catch(e){}
+if(!store.profiles[store.current])store.current=Object.keys(store.profiles)[0];
+for(const p of Object.values(store.profiles))(p.leaders||[]).forEach(l=>{if(l.on===undefined){l.on=l.count>0;if(!(l.count>0))l.count=1}});
+let S=JSON.parse(JSON.stringify(store.profiles[store.current]));
+function persist(){store.profiles[store.current]=JSON.parse(JSON.stringify(S));try{localStorage.setItem(KEY,JSON.stringify(store))}catch(e){}}
+
+const $=id=>document.getElementById(id);
+const fmt=n=>Math.round(n).toLocaleString('en-US');
+const num=(v,d)=>{const x=parseFloat(v);return isFinite(x)?x:d};
+const capVal=v=>{const x=parseFloat(v);return isFinite(x)&&x>0?x:Infinity};
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+
+/* ---------- inputs ---------- */
+function renderProfiles(){const sel=$('profileSel');sel.innerHTML=Object.keys(store.profiles).map(n=>`<option${n===store.current?' selected':''}>${esc(n)}</option>`).join('')}
+function renderTroops(){
+  let h='<span></span>'+TYPES.map(t=>`<span class="th">${TNAME[t]}</span>`).join('');
+  for(let tier=TIERS;tier>=1;tier--){
+    const empty=TYPES.every(t=>!S.troops[t][tier-1]);
+    h+=`<span class="${empty?'trow-empty':''}"><span class="tier${tier>=8?' hi':''}" title="Tier ${tier}">${ROMAN[tier-1]}</span></span>`;
+    for(const t of TYPES){h+=`<input type="number" min="0" step="1" id="tr-${t}-${tier}" aria-label="T${tier} ${TNAME[t]}" value="${S.troops[t][tier-1]||''}" placeholder="0">`}
+  }
+  $('troopGrid').innerHTML=h;
+}
+function renderLeaders(){
+  let h='<div class="lrow head"><span>Name</span><span>Strength</span><span style="text-align:center">Joining</span><span></span><div class="lopts"><span style="text-align:center"><span class="rot-only">Full early</span></span><span>Min</span><span>Cap</span><span>Group ×</span></div></div>';
+  S.leaders.forEach((l,i)=>{
+    h+=`<div class="lrow${l.on===false?' off':''}">
+      <input type="text" id="ln-${i}" aria-label="Leader name" value="${esc(l.name)}">
+      <input type="number" id="lk-${i}" aria-label="Strength" min="0" step="0.01" value="${l.k}">
+      <span class="cb"><input type="checkbox" id="lo-${i}" aria-label="Joining this event"${l.on!==false?' checked':''}></span>
+      <button type="button" class="ghost" data-del="${i}" aria-label="Remove leader">✕</button>
+      <div class="lopts">
+        <span class="cb"><input type="checkbox" class="rot-only" id="le-${i}" aria-label="Full early"${l.early?' checked':''}></span>
+        <input type="number" id="lm-${i}" aria-label="Minimum" min="0" step="1000" placeholder="min" value="${l.min||''}">
+        <input type="number" id="lp-${i}" aria-label="Cap" min="0" step="1000" placeholder="cap" value="${l.cap}">
+        <input type="number" id="lc-${i}" aria-label="Group size" min="1" step="1" value="${l.count}">
+      </div></div>`;
+  });
+  $('leaders').innerHTML=h;
+}
+function renderStats(){
+  const rows=[['sq','Squads'],['inf','Infantry'],['cav','Cavalry'],['arc','Archers']];
+  let h='<span></span><span class="th" style="font-size:.72rem;color:var(--muted)">Attack %</span><span class="th" style="font-size:.72rem;color:var(--muted)">Lethality %</span>';
+  for(const [k,n] of rows){h+=`<span style="font-size:.85rem">${n}</span><input type="number" step="0.1" id="sa-${k}" value="${S.stats[k].a}"><input type="number" step="0.1" id="sl-${k}" value="${S.stats[k].l}">`}
+  $('statsGrid').innerHTML=h;
+}
+function renderToggles(){
+  $('leadYes').setAttribute('aria-pressed',S.leading);$('leadNo').setAttribute('aria-pressed',!S.leading);
+  document.querySelectorAll('.lead-only').forEach(e=>e.hidden=!S.leading);
+  const rot=S.mode==='rot';
+  $('modeRot').setAttribute('aria-pressed',rot);$('modeSync').setAttribute('aria-pressed',!rot);
+  document.querySelectorAll('.rot-only').forEach(e=>e.hidden=!rot);
+  document.querySelectorAll('.sync-only').forEach(e=>e.hidden=rot);
+}
+function renderInputs(){
+  renderProfiles();renderTroops();renderLeaders();renderStats();
+  $('marches').value=S.marches;$('ownK').value=S.ownK;$('leadCap').value=S.leadCap;$('leadQueue').checked=!!S.leadQueue;$('leadHits').value=S.leadHits||S.rounds;$('lowTier').value=String(S.lowTier||0);
+  $('rounds').value=S.rounds;$('rotHits').value=S.rotHits;$('joinCap').value=S.joinCap;$('joinMin').value=S.joinMin||'';$('pitfall').value=S.pitfall;$('buffA').value=S.buffA||'';$('buffL').value=S.buffL||'';
+  $('meName').value=S.meName||'';$('mPresets').value=S.mPresets||'';$('mHits').value=S.mHits||'';
+  renderToggles();
+}
+function readInputs(){
+  for(let tier=1;tier<=TIERS;tier++)for(const t of TYPES){const e=$(`tr-${t}-${tier}`);if(e)S.troops[t][tier-1]=Math.max(0,Math.round(num(e.value,0)))}
+  S.marches=Math.max(1,Math.min(8,Math.round(num($('marches').value,4))));
+  S.ownK=Math.max(0,num($('ownK').value,1));S.leadCap=$('leadCap').value;S.leadQueue=$('leadQueue').checked;S.leadHits=Math.max(1,Math.round(num($('leadHits').value,5)));S.lowTier=parseInt($('lowTier').value,10)||0;
+  S.rounds=Math.max(1,Math.round(num($('rounds').value,5)));S.rotHits=Math.max(0.5,num($('rotHits').value,6.5));
+  S.joinCap=$('joinCap').value;S.joinMin=$('joinMin').value;S.pitfall=num($('pitfall').value,25);S.buffA=Math.max(0,num($('buffA').value,0));S.buffL=Math.max(0,num($('buffL').value,0));
+  S.leaders.forEach((l,i)=>{l.name=$(`ln-${i}`).value;l.k=Math.max(0,num($(`lk-${i}`).value,1));l.count=Math.max(1,Math.round(num($(`lc-${i}`).value,1)));l.on=$(`lo-${i}`).checked;$(`ln-${i}`).closest('.lrow').classList.toggle('off',!l.on);l.early=$(`le-${i}`).checked;l.min=$(`lm-${i}`).value;l.cap=$(`lp-${i}`).value});
+  for(const k of ['sq','inf','cav','arc']){S.stats[k].a=num($(`sa-${k}`).value,0);S.stats[k].l=num($(`sl-${k}`).value,0)}
+  S.meName=$('meName').value;S.mPresets=$('mPresets').value;S.mHits=$('mHits').value;
+}
+
+/* ---------- model ---------- */
+function items(){const out=[];for(let tier=TIERS;tier>=1;tier--)for(const t of TYPES){const n=S.troops[t][tier-1];if(n>0)out.push({t,tier,n,b:BASE[t][tier-1]})}return out}
+function typeMult(){const m={},bA=S.buffA||0,bL=S.buffL||0;for(const t of TYPES){m[t]=(1+(S.stats[t].a+S.stats.sq.a+S.pitfall+bA)/100)*(1+(S.stats[t].l+S.stats.sq.l+bL)/100)*(t==='arc'?1.1:1)}return m}
+
+// per-march size n_g = clamp(w_g^2 * s, lo_g, cap_g), with s chosen so the troops add up; null if the minimums need more troops than exist
+function waterfill(groups,T){
+  const lo=g=>g.lo||0;
+  const minSum=groups.reduce((a,g)=>a+g.m*lo(g),0);
+  if(minSum>T+0.5)return null;
+  const capSum=groups.reduce((a,g)=>a+g.m*g.cap,0);
+  const target=Math.min(T,capSum);
+  const sizeAt=s=>groups.map(g=>Math.min(g.cap,Math.max(lo(g),g.w*g.w*s)));
+  const sumAt=s=>sizeAt(s).reduce((a,n,i)=>a+groups[i].m*n,0);
+  let a=0,b=1;while(sumAt(b)<target&&b<1e15)b*=2;
+  for(let k=0;k<100;k++){const c=(a+b)/2;if(sumAt(c)<target)a=c;else b=c}
+  const n=sizeAt(b);
+  let v=0;groups.forEach((g,i)=>v+=g.m*g.w*Math.sqrt(Math.max(0,n[i])));
+  return {n,v};
+}
+const minVal=v=>{const x=parseFloat(v);return isFinite(x)&&x>0?x:0};
+
+function enumeratePlans(T){
+  const jc=capVal(S.joinCap),lc=capVal(S.leadCap),jm=minVal(S.joinMin);
+  const rows=S.leaders.map((l,i)=>({...l,i,count:l.on===false?0:l.count,capN:capVal(l.cap)<Infinity?capVal(l.cap):jc,minN:minVal(l.min)||jm})).filter(r=>r.count>0&&r.k>0&&r.minN<=r.capN);
+  const avail=S.marches-(S.leading&&S.leadQueue?1:0);
+  const LH=S.leadHits||S.rounds;
+  const leadG=S.leading?[{role:'lead',label:'Your rally',m:1,hits:LH,k:S.ownK,w:LH*S.ownK,cap:lc}]:[];
+  const plans=[];
+  const push=(pins,nRot,hits,kPool,rotMin=0,avoid=[])=>{
+    const groups=[...leadG];
+    pins.forEach((p,ri)=>{if(p>0){const r=rows[ri];groups.push({role:'pin',label:r.name||'Leader',m:p,hits:S.rounds,k:r.k,w:S.rounds*r.k,cap:r.capN,lo:r.minN})}});
+    if(nRot>0)groups.push({role:'rot',label:'Rotating',m:nRot,hits,k:kPool,w:hits*kPool,cap:jc,lo:rotMin,avoid});
+    if(!groups.length)return;
+    const wf=waterfill(groups,T);
+    if(!wf)return;
+    plans.push({groups,proxy:wf.v});
+  };
+  if(S.mode==='sync'){
+    const order=rows.map((r,ri)=>ri).sort((a,b)=>rows[b].k-rows[a].k);
+    // try every number of marches used, filling strongest leaders first
+    for(let use=0;use<=avail;use++){
+      const pins=rows.map(()=>0);let left=use;
+      for(const ri of order){const take=Math.min(rows[ri].count,left);pins[ri]=take;left-=take}
+      if(left>0)continue;
+      push(pins,0,0,0);
+    }
+  } else {
+    const pins=rows.map(()=>0);
+    const rec=(ri,used)=>{
+      if(ri===rows.length){
+        // rotating marches only join rallies whose minimum they meet: try each minimum level as the rotating march's floor
+        const cand=rows.filter((r,j)=>!r.early&&r.count-pins[j]>0);
+        const levels=[...new Set(cand.map(r=>r.minN))].sort((a,b)=>a-b);
+        push(pins.slice(),0,0,0);
+        for(const th of levels){
+          let poolN=0,poolK=0;const avoid=[];
+          rows.forEach((r,j)=>{const u=r.count-pins[j];if(r.early||u<=0)return;if(r.minN<=th){poolN+=u;poolK+=u*r.k}else avoid.push(r.name)});
+          if(!poolN)continue;
+          const kPool=poolK/poolN;
+          for(let nRot=1;nRot<=avail-used;nRot++){
+            const hits=Math.min(S.rotHits,S.rounds*poolN/nRot);
+            push(pins.slice(),nRot,hits,kPool,th,avoid);
+          }
+        }
+        return;
+      }
+      for(let p=0;p<=Math.min(rows[ri].count,avail-used);p++){pins[ri]=p;rec(ri+1,used+p)}
+      pins[ri]=0;
+    };
+    rec(0,0);
+  }
+  plans.sort((a,b)=>b.proxy-a.proxy);
+  return plans;
+}
+
+function planName(p){
+  const parts=[];
+  for(const g of p.groups){
+    if(g.role==='lead')parts.push('Lead');
+    else if(g.role==='pin')parts.push(`Pin ${g.label}${g.m>1?' ×'+g.m:''}`);
+    else parts.push(`${g.m} rotating${g.avoid&&g.avoid.length?` (skip ${g.avoid.join(', ')})`:''}`);
+  }
+  return parts.join(' + ');
+}
+
+function marchF(alloc,its,M){ // per-march damage proxy
+  let f=0;
+  for(const t of TYPES){let s=0,n=0;its.forEach((it,i)=>{if(it.t===t){s+=alloc[i]*it.b;n+=alloc[i]}});if(n>1e-9)f+=M[t]*s/Math.sqrt(n)}
+  return f;
+}
+function grads(alloc,its,M){
+  const S2={},N2={};for(const t of TYPES){S2[t]=0;N2[t]=0}
+  its.forEach((it,i)=>{S2[it.t]+=alloc[i]*it.b;N2[it.t]+=alloc[i]});
+  return its.map(it=>{let N=N2[it.t],Sx=S2[it.t];if(N<1){N=1;Sx=it.b}return M[it.t]*(it.b-Sx/(2*N))/Math.sqrt(N)});
+}
+
+function optimize(plan,its,M){
+  const T=its.reduce((a,b)=>a+b.n,0);
+  const groups=plan.groups.map(g=>({...g}));
+  groups.push({role:'home',label:'Left home',m:1,w:0,cap:Infinity});
+  const G=groups.length,I=its.length;
+  const wf=waterfill(groups.slice(0,G-1),T);
+  // inventory held by each group per item
+  const inv=groups.map(()=>Array(I).fill(0));
+  // low tiers the user wants in their own rally stay fixed there
+  const leadIdx=groups.findIndex(g=>g.role==='lead');
+  const fixed=its.map(it=>leadIdx>=0&&it.tier<=(S.lowTier||0));
+  const fixedSum=its.reduce((s,it,i)=>s+(fixed[i]?it.n:0),0);
+  const Tfree=T-fixedSum;
+  const tgt=wf.n.map((n,g)=>groups[g].m*n);
+  if(leadIdx>=0)tgt[leadIdx]=Math.max(0,tgt[leadIdx]-fixedSum);
+  const tsum=tgt.reduce((a,b)=>a+b,0),scale=tsum>Tfree&&tsum>0?Tfree/tsum:1;
+  its.forEach((it,i)=>{
+    if(fixed[i]){inv[leadIdx][i]=it.n;return}
+    let used=0;for(let g=0;g<G-1;g++){const x=Tfree>0?tgt[g]*scale*it.n/Tfree:0;inv[g][i]=x;used+=x}inv[G-1][i]=Math.max(0,it.n-used)});
+  const per=g=>inv[g].map(x=>x/groups[g].m);
+  const size=g=>inv[g].reduce((a,b)=>a+b,0)/groups[g].m;
+  const gval=g=>groups[g].role==='home'?0:groups[g].m*groups[g].w*marchF(per(g),its,M);
+  let gv=groups.map((_,g)=>gval(g));
+  let gr=groups.map((g,gi)=>g.role==='home'?Array(I).fill(0):grads(per(gi),its,M).map(x=>x*g.w));
+  let step=Math.max(1,T/40),iter=0;
+  while(step>=1&&iter<2500){
+    iter++;
+    let best=null,bestGain=1e-9;
+    for(let a=0;a<G;a++)for(let b=0;b<G;b++){if(a===b)continue;
+      const room=(groups[b].cap-size(b))*groups[b].m,slack=(size(a)-(groups[a].lo||0))*groups[a].m;
+      for(let i=0;i<I;i++){if(fixed[i])continue;const ai=inv[a][i];if(ai<0.5)continue;
+        if(room>0.5&&slack>0.5){const d=Math.min(step,ai,room,slack),gain=(gr[b][i]-gr[a][i])*d;if(gain>bestGain){bestGain=gain;best={a,b,i,j:-1,d}}}
+        const dgi=gr[b][i]-gr[a][i];
+        for(let j=0;j<I;j++){if(j===i||fixed[j])continue;const bj=inv[b][j];if(bj<0.5)continue;
+          const d=Math.min(step,ai,bj),gain=(dgi+gr[a][j]-gr[b][j])*d;if(gain>bestGain){bestGain=gain;best={a,b,i,j,d}}}
+      }
+    }
+    if(!best){step/=2;continue}
+    const {a,b,i,j,d}=best,before=gv[a]+gv[b];
+    inv[a][i]-=d;inv[b][i]+=d;if(j>=0){inv[b][j]-=d;inv[a][j]+=d}
+    const na=gval(a),nb=gval(b);
+    if(na+nb<=before+1e-9){inv[a][i]+=d;inv[b][i]-=d;if(j>=0){inv[b][j]+=d;inv[a][j]-=d}step/=2;continue}
+    gv[a]=na;gv[b]=nb;
+    for(const g of [a,b])gr[g]=groups[g].role==='home'?Array(I).fill(0):grads(per(g),its,M).map(x=>x*groups[g].w);
+  }
+  // integer presets
+  const presets=groups.map(()=>Array(I).fill(0));
+  its.forEach((it,i)=>{
+    if(fixed[i]){presets[leadIdx][i]=it.n;return}
+    let used=0;
+    for(let g=0;g<G-1;g++){const p=inv[g][i]/groups[g].m;const v=groups[g].m>1?Math.floor(p+1e-6):Math.round(p);presets[g][i]=Math.max(0,v);used+=presets[g][i]*groups[g].m}
+    let diff=it.n-used;
+    // give rounding remainder to a single march with room, largest holder first
+    const singles=[];for(let g=0;g<G-1;g++)if(groups[g].m===1)singles.push(g);
+    singles.sort((x,y)=>presets[y][i]-presets[x][i]);
+    for(const g of singles){if(diff===0)break;const sz=presets[g].reduce((s,x)=>s+x,0);
+      if(diff>0){const add=Math.min(diff,Math.max(0,Math.floor(groups[g].cap-sz)));presets[g][i]+=add;diff-=add}
+      else{const sub=Math.min(-diff,presets[g][i]);presets[g][i]-=sub;diff+=sub}}
+    // then split what's left evenly across identical marches (e.g. 8 troops over 4 joiners), within their caps
+    for(let g=0;g<G-1&&diff>0;g++){const m=groups[g].m;if(m<2)continue;const sz=presets[g].reduce((s,x)=>s+x,0);
+      const add=Math.min(Math.floor(diff/m),Math.max(0,Math.floor(groups[g].cap-sz)));if(add>0){presets[g][i]+=add;diff-=add*m}}
+    presets[G-1][i]=Math.max(0,diff);
+  });
+  // keep single capped marches at or under their cap after rounding
+  for(let g=0;g<G-1;g++){if(groups[g].m!==1||groups[g].cap===Infinity)continue;
+    const over=presets[g].reduce((s,x)=>s+x,0)-Math.floor(groups[g].cap);if(over<=0)continue;
+    let im=0;presets[g].forEach((x,i)=>{if(!fixed[i]&&x>presets[g][im])im=i});presets[g][im]-=over;
+    const to=leadIdx>=0&&leadIdx!==g&&groups[leadIdx].cap===Infinity?leadIdx:G-1;presets[to][im]+=over}
+  // top up any march that rounding left below its minimum, taking from home first, then your rally
+  for(let g=0;g<G-1;g++){const lo=Math.ceil(groups[g].lo||0);if(!lo||g===leadIdx)continue;
+    let need=lo-presets[g].reduce((s,x)=>s+x,0);
+    for(const src of [G-1,leadIdx]){if(need<=0||src<0)break;
+      while(need>0){let im=-1;presets[src].forEach((x,i)=>{if(!fixed[i]&&x>=groups[g].m&&(im<0||x>presets[src][im]))im=i});if(im<0)break;
+        const t=Math.min(need,Math.floor(presets[src][im]/groups[g].m));if(t<=0)break;presets[src][im]-=t*groups[g].m;presets[g][im]+=t;need-=t}}}
+  const value=gv.reduce((s,x)=>s+x,0);
+  return {groups,presets,value};
+}
+
+function equalValue(plan,its,M){
+  const T=its.reduce((a,b)=>a+b.n,0);
+  const eq=plan.groups.map(g=>({...g,w:1}));
+  const wf=waterfill(eq,T);
+  if(!wf)return NaN;
+  let v=0;plan.groups.forEach((g,gi)=>{const alloc=its.map(it=>wf.n[gi]*it.n/T);v+=g.m*g.w*marchF(alloc,its,M)});
+  return v;
+}
+
+/* ---------- results ---------- */
+let lastText='';
+function compute(){
+  const its=items(),T=its.reduce((a,b)=>a+b.n,0);
+  $('troopTotal').textContent=fmt(T);
+  const warn=[];
+  if(!T){$('gain').textContent='–';$('marchCards').innerHTML='';$('presetTable').innerHTML='';$('alts').innerHTML='';$('planLine').textContent='';$('warnings').innerHTML='<p class="warnbox">Enter your troop counts to see presets.</p>';return}
+  const plans=enumeratePlans(T);
+  if(!plans.length){$('warnings').innerHTML='<p class="warnbox">Add at least one leader, or turn on leading your own rally.</p>';$('marchCards').innerHTML='';$('presetTable').innerHTML='';$('alts').innerHTML='';$('gain').textContent='–';return}
+  const M=typeMult();
+  // refine the top few plans with the full tier model, pick the best
+  const top=plans.slice(0,4).map(p=>{const r=optimize(p,its,M);return {p,r}});
+  top.sort((a,b)=>b.r.value-a.r.value);
+  const bestTop=top[0];let best=bestTop,chosen=false;
+  if(S.planChoice&&S.planChoice!==planName(bestTop.p)){const cp=plans.find(p=>planName(p)===S.planChoice);if(cp){best={p:cp,r:optimize(cp,its,M)};chosen=true}}
+  $('h-plan').textContent=chosen?'Chosen plan':'Best plan';$('backBest').hidden=!chosen;
+  const eqv=equalValue(best.p,its,M);
+  const gain=isFinite(eqv)&&eqv>0?(best.r.value/eqv-1)*100:0;
+  $('gain').textContent=(gain>=0.05?'+':'')+gain.toFixed(gain<10?1:0)+'%';
+  $('gain').className='big'+(gain>0.05?' pos':'');
+  $('gainNote').textContent=gain>0.05?'more damage than splitting troops equally across the same marches':'equal split is already as good as it gets';
+  const used=best.r.groups.slice(0,-1).reduce((s,g)=>s+(g.role==='lead'&&!S.leadQueue?0:g.m),0);
+  $('planLine').textContent=`${used} of ${S.marches} march queues used`;
+
+  // march cards
+  const G=best.r.groups,P=best.r.presets;
+  let cards='';
+  G.forEach((g,gi)=>{
+    if(g.role==='home')return;
+    const sz=P[gi].reduce((a,b)=>a+b,0);
+    const chip=g.role==='lead'?'<span class="chip lead">Your rally</span>':g.role==='pin'?'<span class="chip pin">Pinned · join at open</span>':'<span class="chip rot">Rotating · next with room</span>';
+    const name=g.role==='lead'?'Lead preset':g.role==='pin'?esc(g.label):'Joiner preset';
+    cards+=`<div class="march">${chip}<span class="name">${name}${g.m>1?` <span class="mono">×${g.m}</span>`:''}</span><span class="troopsN">${fmt(sz)}</span><span class="math">${(+g.hits).toFixed(g.hits%1?1:0)} hits × ${(+g.k).toFixed(2)} = ${(g.hits*g.k).toFixed(1)} weight${g.lo?` · min ${fmt(g.lo)}`:''}${g.cap<Infinity?` · cap ${fmt(g.cap)}`:''}</span>${g.avoid&&g.avoid.length?`<span class="math">Skip: ${esc(g.avoid.join(', '))}</span>`:''}</div>`;
+  });
+  $('marchCards').innerHTML=cards;
+  const home=P[G.length-1].reduce((a,b)=>a+b,0);
+  if(home>50)warn.push(`${fmt(home)} troops stay home because every march is at its cap. Raise a cap or use another march queue to send them.`);
+  const idle=S.marches-used;
+  if(idle>0&&S.leaders.length)warn.push(`${idle} march queue${idle>1?'s':''} left empty. Another rotating march would only split the same rallies across more marches, which lowers damage.`);
+  $('warnings').innerHTML=warn.map(w=>`<p class="warnbox">${esc(w)}</p>`).join('');
+
+  // preset table
+  const cols=G.map((g,gi)=>({g,gi})).filter(({g,gi})=>g.role!=='home'||P[gi].some(x=>x>0));
+  const colName=g=>g.role==='lead'?'Lead':g.role==='pin'?esc(g.label)+(g.m>1?` ×${g.m}`:''):g.role==='rot'?`Joiner ×${g.m}`:'Left home';
+  let th='<thead><tr><th>Troop</th>'+cols.map(({g})=>`<th>${colName(g)}</th>`).join('')+'</tr></thead><tbody>';
+  const lines=[];
+  its.forEach((it,i)=>{th+=`<tr><td>T${it.tier} ${TNAME[it.t]}</td>`+cols.map(({gi})=>`<td>${fmt(P[gi][i])}</td>`).join('')+'</tr>'});
+  th+='<tr class="total"><td>Total per march</td>'+cols.map(({gi})=>`<td>${fmt(P[gi].reduce((a,b)=>a+b,0))}</td>`).join('')+'</tr>';
+  th+='<tr class="mix"><td>Inf / Cav / Arch %</td>'+cols.map(({gi})=>{const s={inf:0,cav:0,arc:0};its.forEach((it,i)=>s[it.t]+=P[gi][i]);const tot=s.inf+s.cav+s.arc||1;return `<td>${Math.round(100*s.inf/tot)} / ${Math.round(100*s.cav/tot)} / ${Math.round(100*s.arc/tot)}</td>`}).join('')+'</tr></tbody>';
+  $('presetTable').innerHTML=th;
+  // copy text
+  for(const {g,gi} of cols){if(g.role==='home')continue;lines.push(`${colName(g).replace(/&amp;/g,'&')} (${fmt(P[gi].reduce((a,b)=>a+b,0))})`);its.forEach((it,i)=>{if(P[gi][i]>0)lines.push(`  T${it.tier} ${TNAME[it.t]}: ${fmt(P[gi][i])}`)});}
+  lastText=lines.join('\n');
+
+  // alternatives
+  const seen=new Set(),alts=[];
+  for(const p of plans){const n=planName(p);if(seen.has(n))continue;seen.add(n);alts.push({n,v:p.proxy});if(alts.length>=10)break}
+  if(chosen&&!seen.has(planName(best.p)))alts.push({n:planName(best.p),v:best.p.proxy});
+  const bestName=planName(best.p),topName=planName(bestTop.p),bp=Math.max(...alts.map(a=>a.v));
+  $('alts').innerHTML=alts.map(a=>`<li class="${a.n===bestName?'best':''}"><span><button type="button" class="altbtn" data-plan="${esc(a.n)}">${esc(a.n)}</button>${a.n===topName?'<span class="tag">best</span>':''}${a.n===bestName&&chosen?'<span class="tag">in use</span>':''}</span><span class="mono">${(100*a.v/bp).toFixed(1)}%</span></li>`).join('');
+
+  // expected damage of the best plan, then the user's own presets
+  let bestRaw=0;G.forEach((g,gi)=>{if(g.role!=='home')bestRaw+=g.m*g.w*marchF(P[gi],its,M)});
+  if(S.calScale){$('gain').textContent=fmtM(bestRaw*S.calScale);$('gain').className='big';
+    $('gainNote').textContent=`expected per event${gain>0.05?` · ${gain.toFixed(1)}% more than an even split across the same marches`:''}${S.buffA||S.buffL?` · includes +${S.buffA||0}% attack, +${S.buffL||0}% lethality buffs`:''}`}
+  if(chosen)$('gainNote').textContent+=` · ${(100*best.r.value/bestTop.r.value).toFixed(1)}% of the best plan`;
+}
+
+const fmtM=n=>n>=1e6?(n/1e6).toFixed(2)+'M':Math.round(n/1e3).toLocaleString('en-US')+'k';
+function parsePresets(txt){
+  const out=[];let cur=null;
+  for(const raw of String(txt).split(/\r?\n/)){
+    const line=raw.trim();if(!line)continue;
+    const m=line.match(/^T(\d+)\s+(infantry|cavalry|archers?)\s*[:=]?\s*([\d,.\s]+)$/i);
+    if(m){if(cur){const t={infantry:'inf',cavalry:'cav',archer:'arc',archers:'arc'}[m[2].toLowerCase()];const tier=+m[1];const n=parseInt(m[3].replace(/[^\d]/g,''),10)||0;if(tier>=1&&tier<=TIERS&&n>0)cur.troops.push({t,tier,n})}continue}
+    let name=line.replace(/\(\s*[\d,.\s]+\)\s*$/,'').trim();
+    const mm=name.match(/[×x]\s*(\d+)\s*$/i);const mult=mm?Math.max(1,+mm[1]):1;if(mm)name=name.slice(0,mm.index).trim();
+    cur={name,m:mult,troops:[]};out.push(cur);
+  }
+  return out.filter(x=>x.troops.length);
+}
+function presetDmg(troops,M){let f=0;for(const t of TYPES){let s=0,n=0;troops.forEach(x=>{if(x.t===t){s+=x.n*BASE[t][x.tier-1];n+=x.n}});if(n>0)f+=M[t]*s/Math.sqrt(n)}return f}
+const cleanName=s=>String(s).toLowerCase().replace(/\(.*?\)/g,'').trim();
+function classify(name,rows){
+  const n=cleanName(name);
+  if(/^(lead|your rally|my rally)/.test(n))return {role:'lead'};
+  if(/^(joiner|rotating|rotate)/.test(n))return {role:'rot'};
+  const hit=rows.find(l=>{const ln=cleanName(l.name);return ln&&(n===ln||n.startsWith(ln)||ln.startsWith(n))});
+  return hit?{role:'pin',leader:hit}:{role:'unknown'};
+}
+/* ---------- measuring strengths from a hit list ---------- */
+let measured=null;
+function parseHits(txt){
+  const out=[];
+  for(const raw of String(txt).split(/\r?\n/)){
+    const line=raw.trim();if(!line)continue;
+    const nums=line.match(/\d[\d,.]*\d/g);if(!nums)continue;
+    const tok=nums.reduce((a,b)=>b.replace(/[^\d]/g,'').length>a.replace(/[^\d]/g,'').length?b:a);
+    const dmg=parseInt(tok.replace(/[^\d]/g,''),10);if(!(dmg>0))continue;
+    const name=line.replace(tok,'').replace(/[:=|\t]+/g,' ').replace(/\s+/g,' ').trim();if(!name)continue;
+    out.push({name,dmg});
+  }
+  return out;
+}
+const sameName=(a,b)=>a&&b&&(a===b||a.startsWith(b)||b.startsWith(a));
+function renderMeasure(){
+  const hits=parseHits(S.mHits||''),ps=parsePresets(S.mPresets||'');measured=null;
+  if(!hits.length||!ps.length){$('mWrap').hidden=true;$('mApply').hidden=true;$('mNote').textContent=hits.length?'Paste the presets you used as well.':'';return}
+  const M=typeMult(),me=cleanName(S.meName||'');
+  const isLead=n=>/^(lead|your rally|my rally)/.test(n),isRot=n=>/^(joiner|rotating|rotate)/.test(n);
+  const leadP=ps.find(p=>isLead(cleanName(p.name))),rotP=ps.find(p=>isRot(cleanName(p.name)));
+  const groups=new Map();
+  hits.forEach(h=>{const k=cleanName(h.name);if(!groups.has(k))groups.set(k,{name:h.name,d:[]});groups.get(k).d.push(h.dmg)});
+  const rows=[];
+  for(const [k,g] of groups){
+    const isMe=sameName(k,me);
+    const preset=isMe?leadP:(ps.find(p=>{const n=cleanName(p.name);return !isLead(n)&&!isRot(n)&&sameName(n,k)})||rotP);
+    const d=g.d.slice().sort((a,b)=>a-b),med=d.length%2?d[(d.length-1)/2]:(d[d.length/2-1]+d[d.length/2])/2;
+    const used=d.length>=3?d.filter(x=>Math.abs(x/med-1)<=0.35):d;
+    const avg=used.reduce((a,b)=>a+b,0)/used.length,f=preset?presetDmg(preset.troops,M):0;
+    rows.push({name:g.name,isMe,n:d.length,used:used.length,avg,perF:f?avg/f:0,preset:preset?preset.name+(preset.m>1?` ×${preset.m}`:''):'',oneOff:d.length===1&&!isMe});
+  }
+  const meRow=rows.find(r=>r.isMe&&r.perF>0);
+  const ref=meRow?meRow.perF:Math.max(0,...rows.filter(r=>r.perF>0&&!r.oneOff).map(r=>r.perF));
+  rows.forEach(r=>r.k=ref&&r.perF?r.perF/ref:0);
+  rows.sort((a,b)=>(b.isMe-a.isMe)||(b.k-a.k));
+  let h='<thead><tr><th>Leader</th><th>Hits used</th><th>Avg per hit</th><th>Preset</th><th>Strength</th></tr></thead><tbody>';
+  rows.forEach(r=>{
+    const st=!r.perF?'<td class="miss">No matching preset</td>':r.oneOff?'<td class="miss">One hit, skipped</td>':`<td>${r.k.toFixed(2)}</td>`;
+    h+=`<tr><td>${esc(r.name)}${r.isMe?' (you)':''}</td><td>${r.used}${r.used<r.n?` of ${r.n}`:''}</td><td>${fmt(r.avg)}</td><td style="font-family:var(--body)">${esc(r.preset||'–')}</td>${st}</tr>`;
+  });
+  $('mTable').innerHTML=h+'</tbody>';$('mWrap').hidden=false;
+  $('mNote').textContent=(meRow?`Strengths are relative to your own rally. `:`No hits from your own rally${me?'':' (enter your name above)'}, so strengths are relative to the strongest leader. `)+'Hits more than 35% away from a leader\'s typical hit are left out, and leaders with a single hit are skipped.';
+  measured={rows,meRow,leadF:leadP?presetDmg(leadP.troops,M):0};
+  $('mApply').hidden=!rows.some(r=>!r.isMe&&!r.oneOff&&r.k>0);
+}
+
+/* ---------- wiring ---------- */
+let timer=null;
+function changed(){readInputs();persist();clearTimeout(timer);timer=setTimeout(()=>{compute();renderMeasure()},120)}
+document.addEventListener('input',e=>{if(e.target.closest('.layout'))changed()});
+document.addEventListener('change',e=>{if(e.target.type==='checkbox')changed()});
+$('leaders').addEventListener('click',e=>{const d=e.target.closest('[data-del]');if(!d)return;readInputs();S.leaders.splice(+d.dataset.del,1);renderLeaders();renderToggles();persist();compute()});
+$('addLeader').addEventListener('click',()=>{readInputs();S.leaders.push({name:'Leader',k:1,count:1,on:true,early:false,cap:''});renderLeaders();renderToggles();persist();compute()});
+$('leadYes').addEventListener('click',()=>{readInputs();S.leading=true;renderToggles();persist();compute()});
+$('leadNo').addEventListener('click',()=>{readInputs();S.leading=false;renderToggles();persist();compute()});
+$('modeRot').addEventListener('click',()=>{readInputs();S.mode='rot';renderToggles();persist();compute()});
+$('modeSync').addEventListener('click',()=>{readInputs();S.mode='sync';renderToggles();persist();compute()});
+$('profileSel').addEventListener('change',e=>{readInputs();persist();store.current=e.target.value;S=JSON.parse(JSON.stringify(store.profiles[store.current]));try{localStorage.setItem(KEY,JSON.stringify(store))}catch(err){}renderInputs();compute()});
+$('saveAsBtn').addEventListener('click',()=>{$('saveAsRow').hidden=false;$('newName').focus()});
+$('saveAsCancel').addEventListener('click',()=>{$('saveAsRow').hidden=true});
+$('saveAsOk').addEventListener('click',()=>{const n=$('newName').value.trim();if(!n)return;readInputs();store.profiles[n]=JSON.parse(JSON.stringify(S));store.current=n;persist();$('saveAsRow').hidden=true;$('newName').value='';renderProfiles()});
+$('delBtn').addEventListener('click',()=>{const names=Object.keys(store.profiles);if(names.length<2)return;
+  if($('delBtn').dataset.armed!=='1'){$('delBtn').dataset.armed='1';$('delBtn').textContent='Tap again to delete';setTimeout(()=>{$('delBtn').dataset.armed='';$('delBtn').textContent='Delete'},3000);return}
+  delete store.profiles[store.current];store.current=Object.keys(store.profiles)[0];S=JSON.parse(JSON.stringify(store.profiles[store.current]));
+  try{localStorage.setItem(KEY,JSON.stringify(store))}catch(e){}$('delBtn').dataset.armed='';$('delBtn').textContent='Delete';renderInputs();compute()});
+$('alts').addEventListener('click',e=>{const b=e.target.closest('[data-plan]');if(!b)return;readInputs();S.planChoice=b.dataset.plan;persist();compute()});
+$('backBest').addEventListener('click',()=>{readInputs();S.planChoice='';persist();compute()});
+$('mApply').addEventListener('click',()=>{readInputs();renderMeasure();if(!measured)return;
+  let added=0,updated=0;
+  measured.rows.forEach(r=>{if(r.isMe||r.oneOff||!r.k)return;const k=cleanName(r.name),v=Math.round(r.k*100)/100;
+    const l=S.leaders.find(l=>sameName(cleanName(l.name),k));
+    if(l){l.k=v;updated++}else{S.leaders.push({name:r.name,k:v,count:1,on:true,early:false,cap:''});added++}});
+  let cal='';
+  if(measured.meRow&&measured.leadF){S.calHit=Math.round(measured.meRow.avg);S.calScale=measured.meRow.avg/(measured.leadF*(S.ownK||1));cal=' Projected damage is recalibrated from your rally\'s hits.'}
+  renderLeaders();renderToggles();persist();compute();renderMeasure();
+  $('mNote').textContent=`Updated ${updated} leader${updated===1?'':'s'}${added?` and added ${added}`:''}.${cal} Make sure the buff fields match what was running during these hits.`});
+$('copyBtn').addEventListener('click',()=>{const done=()=>{$('toast').textContent='Copied';setTimeout(()=>$('toast').textContent='',2000)};
+  try{navigator.clipboard.writeText(lastText).then(done,()=>{$('toast').textContent='Copy blocked here; select the table instead'})}catch(e){$('toast').textContent='Copy blocked here; select the table instead'}});
+
+renderInputs();compute();renderMeasure();
+})();
+</script>
+</body>
+</html>
