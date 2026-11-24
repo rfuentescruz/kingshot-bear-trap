@@ -273,6 +273,8 @@ let store={profiles:JSON.parse(JSON.stringify(DEFAULT_PROFILES)),current:'Exampl
 try{const raw=localStorage.getItem(KEY);if(raw){const s=JSON.parse(raw);if(s&&s.profiles&&Object.keys(s.profiles).length){store=s}}}catch(e){}
 if(!store.profiles[store.current])store.current=Object.keys(store.profiles)[0];
 for(const p of Object.values(store.profiles))(p.leaders||[]).forEach(l=>{if(l.on===undefined){l.on=l.count>0;if(!(l.count>0))l.count=1}});
+// older saves grouped similar leaders with a count; give each its own row
+for(const p of Object.values(store.profiles))if(p.leaders&&p.leaders.some(l=>l.count>1))p.leaders=p.leaders.flatMap(l=>{const n=Math.round(l.count)||1;return Array.from({length:Math.max(1,n)},(_,k)=>({...l,count:1,name:n>1?`${l.name} ${k+1}`:l.name}))});
 let S=JSON.parse(JSON.stringify(store.profiles[store.current]));
 function persist(){store.profiles[store.current]=JSON.parse(JSON.stringify(S));try{localStorage.setItem(KEY,JSON.stringify(store))}catch(e){}}
 
