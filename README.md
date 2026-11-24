@@ -16,9 +16,9 @@ Everything runs in the browser. There is no server, no build step and no trackin
 ## How to use it
 
 1. **Troops:** enter your troop counts from Troops Preview.
-2. **Your marches:** march queues, whether you lead a rally, how many hits your rally gets (5 if you open within the first ~3.5 minutes, otherwise 4), and your march maximum if you have one.
+2. **Your marches:** march queues (your own rally doesn't use one), whether you lead a rally, how many hits your rally gets (5 if you open within the first ~3.5 minutes, otherwise 4), your march maximum if you have one, and the attack and lethality buffs you'll have running.
 3. **Leaders you join:** one row per leader with their strength (you = 1.00). Untick **Joining** for anyone not playing. Tick **Full early** if their rally fills before your rotating marches can get in.
-4. **How rallies launch:** staggered (rotate late) or all at once, rallies per leader, hits per rotating march, buffs, joiner cap and minimum.
+4. **How rallies launch:** staggered (rotate late) or all at once, rallies per leader, hits per rotating march, joiner cap and minimum.
 5. After the event, use **Measure leader strengths** to update the strengths from your actual hits.
 
 Use **Save as new** to keep separate accounts.
