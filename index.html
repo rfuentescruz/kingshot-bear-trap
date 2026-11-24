@@ -66,9 +66,10 @@ button:hover{border-color:var(--accent)}
 .leaders{display:flex;flex-direction:column;gap:8px}
 .leaders{container-type:inline-size}
 .lrow{display:grid;grid-template-columns:minmax(0,1fr) 70px 56px 26px;gap:4px 6px;align-items:center}
-.lopts{grid-column:1/-1;display:grid;grid-template-columns:70px minmax(0,1fr) minmax(0,1fr) 56px;gap:6px;align-items:center;padding-bottom:8px;border-bottom:1px dashed var(--line)}
+.lopts{grid-column:1/-1;display:grid;grid-template-columns:78px minmax(0,1fr) minmax(0,1fr) 56px;gap:6px;align-items:center;padding-bottom:8px;border-bottom:1px dashed var(--line)}
 .lrow.head .lopts{padding-bottom:0;border-bottom:0}
-@container (min-width:600px){.lrow [data-del]{order:9}.lrow{grid-template-columns:minmax(110px,1fr) 64px 54px 60px 80px 80px 52px 26px}.lopts{display:contents}.lrow{padding-bottom:0;border-bottom:0}}
+.lrow.head span{white-space:nowrap}
+@container (min-width:600px){.lrow [data-del],.lrow .delh{order:9}.lrow{grid-template-columns:minmax(110px,1fr) 70px 54px 80px 76px 76px 52px 26px}.lopts{display:contents}.lrow{padding-bottom:0;border-bottom:0}}
 .lrow.off input[type=text],.lrow.off input[type=number]{opacity:.45}
 .lrow.head{font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
 .lrow .cb{display:flex;justify-content:center}
@@ -275,7 +276,7 @@ function renderTroops(){
   $('troopGrid').innerHTML=h;
 }
 function renderLeaders(){
-  let h='<div class="lrow head"><span>Name</span><span>Strength</span><span style="text-align:center">Joining</span><span></span><div class="lopts"><span style="text-align:center"><span class="rot-only">Full early</span></span><span>Min</span><span>Cap</span><span>Group ×</span></div></div>';
+  let h='<div class="lrow head"><span>Name</span><span>Strength</span><span style="text-align:center">Joining</span><span class="delh"></span><div class="lopts"><span style="text-align:center"><span class="rot-only">Full early</span></span><span>Min</span><span>Cap</span><span>Group ×</span></div></div>';
   S.leaders.forEach((l,i)=>{
     h+=`<div class="lrow${l.on===false?' off':''}">
       <input type="text" id="ln-${i}" aria-label="Leader name" value="${esc(l.name)}">
@@ -527,6 +528,7 @@ function compute(){
   $('gain').textContent=(gain>=0.05?'+':'')+gain.toFixed(gain<10?1:0)+'%';
   $('gain').className='big'+(gain>0.05?' pos':'');
   $('gainNote').textContent=gain>0.05?'more damage than splitting troops equally across the same marches':'equal split is already as good as it gets';
+  if(!S.calScale)$('gainNote').textContent+=' · to see projected damage, add your own rally\'s hits under Measure leader strengths';
   const used=best.r.groups.slice(0,-1).reduce((s,g)=>s+(g.role==='lead'&&!S.leadQueue?0:g.m),0);
   $('planLine').textContent=`${used} of ${S.marches} march queues used`;
 
