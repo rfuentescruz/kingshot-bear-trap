@@ -11,7 +11,7 @@ Everything runs in the browser. There is no server, no build step and no trackin
 - **Other plans.** Close alternatives ranked by damage. Tap one to use its presets instead.
 - **Caps and minimums.** Joiner caps and minimums, per-leader overrides, and your own march's maximum. Rotating marches skip rallies whose minimum is above their size.
 - **Measure leader strengths.** Paste the presets you used and your hits after a bear, and it works out each leader's strength relative to your own rally and updates the leader list.
-- **Projected damage.** Once calibrated from your own rally's hits, the headline shows expected damage per event with a ±10% range, since leaders' own buffs, which joiner hero skills get into each rally, and normal hit-to-hit variation all move the result.
+- **Projected damage.** Once calibrated from your own rally's hits, the headline shows expected damage per event with a ±5% range, since leaders' own buffs, which joiner hero skills get into each rally, and normal hit-to-hit variation all move the result.
 
 ## How to use it
 

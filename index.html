@@ -81,6 +81,8 @@ summary{cursor:pointer;color:var(--muted);font-size:.86rem;font-weight:600}
 .stats{display:grid;grid-template-columns:80px repeat(2,minmax(0,1fr));gap:6px 8px;align-items:center;margin-top:10px;max-width:360px}
 /* results */
 .verdict{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:baseline}
+.pm:not([hidden])~#gainNote{flex-basis:100%}
+.pm{font-size:1.15rem;font-weight:600;color:var(--ink);margin-left:-6px;white-space:nowrap}
 .big{font-family:var(--display);font-size:2.1rem;font-weight:700;line-height:1}
 .big.pos{color:var(--good)}
 .marches{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
@@ -227,8 +229,7 @@ td.miss{color:var(--warn);font-family:var(--body)}
     <div class="col results">
       <section class="card" aria-labelledby="h-plan">
         <div class="card-head"><h2 id="h-plan">Best plan</h2><span class="hint" id="planLine"></span><button type="button" id="backBest" hidden>Back to best plan</button></div>
-        <div class="verdict"><span class="big" id="gain">–</span><span class="hint" id="gainNote">more damage than splitting troops equally across the same marches</span></div>
-        <p class="hint" id="rangeNote" hidden>The range is ±10%. Actual damage moves with things the planner can't see: whether the leaders you join have their own buffs running, which joiner hero skills, and at what level, get into each rally, and normal hit-to-hit variation.</p>
+        <div class="verdict"><span class="big" id="gain">–</span><span class="pm mono" id="gainPm" hidden>± <span id="gainPmV"></span></span><span class="hint" id="gainWhy" hidden>(varies with leader and joiner buffs per rally)</span><span class="hint" id="gainNote">more damage than splitting troops equally across the same marches</span></div>
         <div class="marches" id="marchCards"></div>
         <div id="warnings"></div>
       </section>
@@ -599,13 +600,12 @@ function compute(){
 
   // expected damage of the best plan, then the user's own presets
   let bestRaw=0;G.forEach((g,gi)=>{if(g.role!=='home')bestRaw+=g.m*g.w*marchF(P[gi],its,M)});
-  $('rangeNote').hidden=!S.calScale;
-  if(S.calScale){const est=bestRaw*S.calScale;$('gain').textContent=fmtM(est);$('gain').className='big';
-    $('gainNote').textContent=`expected per event, likely ${fmtR(est*0.9,est*1.1)}${gain>0.05?` · ${gain.toFixed(1)}% more than an even split across the same marches`:''}${S.buffA||S.buffL?` · includes +${S.buffA||0}% attack, +${S.buffL||0}% lethality buffs`:''}`}
+  $('gainPm').hidden=$('gainWhy').hidden=!S.calScale;
+  if(S.calScale){const est=bestRaw*S.calScale;$('gain').textContent=fmtM(est);$('gainPmV').textContent=est*0.05>=1e6?(est*0.05/1e6).toFixed(1)+'M':fmtM(est*0.05);$('gain').className='big';
+    $('gainNote').textContent=`expected per event${gain>0.05?` · ${gain.toFixed(1)}% more than an even split across the same marches`:''}${S.buffA||S.buffL?` · includes +${S.buffA||0}% attack, +${S.buffL||0}% lethality buffs`:''}`}
   if(chosen)$('gainNote').textContent+=` · ${(100*best.r.value/bestTop.r.value).toFixed(1)}% of the best plan`;
 }
 
-const fmtR=(a,b)=>b>=1e6?`${(a/1e6).toFixed(1)}–${(b/1e6).toFixed(1)}M`:`${Math.round(a/1e3).toLocaleString('en-US')}–${Math.round(b/1e3).toLocaleString('en-US')}k`;
 const fmtM=n=>n>=1e6?(n/1e6).toFixed(2)+'M':Math.round(n/1e3).toLocaleString('en-US')+'k';
 function parsePresets(txt){
   const out=[];let cur=null;
