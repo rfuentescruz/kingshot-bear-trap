@@ -489,7 +489,9 @@ function optimize(plan,its,M){
     if(fixed[i]){presets[leadIdx][i]=it.n;return}
     let used=0;
     for(let g=0;g<G-1;g++){const p=inv[g][i]/groups[g].m;const v=groups[g].m>1?Math.floor(p+1e-6):Math.round(p);presets[g][i]=Math.max(0,v);used+=presets[g][i]*groups[g].m}
-    let diff=it.n-used;
+    // troops the optimizer left home stay home; only the rounding remainder is spread below
+    const home=Math.max(0,Math.round(inv[G-1][i]));
+    let diff=it.n-home-used;
     // give rounding remainder to a single march with room, largest holder first
     const singles=[];for(let g=0;g<G-1;g++)if(groups[g].m===1)singles.push(g);
     singles.sort((x,y)=>presets[y][i]-presets[x][i]);
@@ -499,7 +501,7 @@ function optimize(plan,its,M){
     // then split what's left evenly across identical marches (e.g. 8 troops over 4 joiners), within their caps
     for(let g=0;g<G-1&&diff>0;g++){const m=groups[g].m;if(m<2)continue;const sz=presets[g].reduce((s,x)=>s+x,0);
       const add=Math.min(Math.floor(diff/m),Math.max(0,Math.floor(groups[g].cap-sz)));if(add>0){presets[g][i]+=add;diff-=add*m}}
-    presets[G-1][i]=Math.max(0,diff);
+    presets[G-1][i]=Math.max(0,home+diff);
   });
   // keep single capped marches at or under their cap after rounding
   for(let g=0;g<G-1;g++){if(groups[g].m!==1||groups[g].cap===Infinity)continue;
